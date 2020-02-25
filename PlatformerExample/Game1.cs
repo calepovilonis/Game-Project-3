@@ -23,10 +23,12 @@ namespace PlatformerExample
       Sprite temp;
       List<IEntity> allies;
       List<IEntity> enemies;
+      List<IEntity> all;
       Random random = new Random();
       int clickDur = 0;
       Grid grid;
       bool startGame = false;
+      Camera camera = new Camera();
 
       public Game1()
       {
@@ -35,6 +37,7 @@ namespace PlatformerExample
          Content.RootDirectory = "Content";
          allies = new List<IEntity>();
          enemies = new List<IEntity>();
+         all = new List<IEntity>();
          grid = new Grid(1042, 1);
       }
 
@@ -110,6 +113,8 @@ namespace PlatformerExample
          graphics.PreferredBackBufferWidth = 1042;
          graphics.PreferredBackBufferHeight = 742;
          graphics.ApplyChanges();
+         camera.ViewportWidth = graphics.GraphicsDevice.Viewport.Width;
+         camera.ViewportHeight = graphics.GraphicsDevice.Viewport.Height;
 
          base.Initialize();
       }
@@ -138,16 +143,21 @@ namespace PlatformerExample
 
          background = Content.Load<Texture2D>("background");
 
+         camera.Reset();
+
          GenerateEnemies();
          foreach (IEntity e in enemies)
          {
             e.Ally = enemies;
+            all.Add(e);
          }
          GenerateAllies();
          foreach (IEntity e in allies)
          {
             e.Ally = allies;
+            all.Add(e);
          }
+
       }
 
       /// <summary>
@@ -174,6 +184,8 @@ namespace PlatformerExample
             startGame = true;
          }
 
+         camera.Update(all, Keyboard.GetState());
+
          for (int i = 0; i < allies.Count; i++)
          {
             allies[i].Update(gameTime, startGame);
@@ -192,10 +204,10 @@ namespace PlatformerExample
       /// <param name="gameTime">Provides a snapshot of timing values.</param>
       protected override void Draw(GameTime gameTime)
       {
-         GraphicsDevice.Clear(Color.CornflowerBlue);
+         GraphicsDevice.Clear(Color.Black);
 
          // TODO: Add your drawing code here
-         spriteBatch.Begin();
+         spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, camera.TranslationMatrix);
 
          spriteBatch.Draw(background, new Rectangle(0, 0, 1042, 742), Color.White);
 
