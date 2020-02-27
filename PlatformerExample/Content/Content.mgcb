@@ -37,6 +37,18 @@
 /processorParam:TextureFormat=Color
 /build:backgrounds.png
 
+#begin king_sheet.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:king_sheet.png
+
 #begin knight_sheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -96,6 +108,13 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:temp.png
+
+#begin Text.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Text.spritefont
 
 #begin wizard_sheet.png
 /importer:TextureImporter

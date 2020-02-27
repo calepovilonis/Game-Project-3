@@ -19,6 +19,7 @@ namespace PlatformerExample
       SpriteSheet knight_sheet;
       SpriteSheet mage_sheet;
       SpriteSheet swordsman_sheet;
+      SpriteSheet king_sheet;
       Texture2D background;
       Sprite temp;
       List<IEntity> allies;
@@ -28,7 +29,10 @@ namespace PlatformerExample
       int clickDur = 0;
       Grid grid;
       bool startGame = false;
+      bool endGame = false;
+      private SpriteFont details;
       Camera camera = new Camera();
+      King king;
 
       public Game1()
       {
@@ -137,11 +141,17 @@ namespace PlatformerExample
          swordsman_sheet = new SpriteSheet(y, 184, 137, 0, 0);
          var z = Content.Load<Texture2D>("wizard_sheet");
          mage_sheet = new SpriteSheet(z, 231, 190, 0, 0);
+         var k = Content.Load<Texture2D>("king_sheet");
+         king_sheet = new SpriteSheet(k, 155, 155, 0, 0);
+
+         king = new King(king_sheet.Sprites, 400, 400, new KingIdle(), new KingWalking());
 
          var t = Content.Load<Texture2D>("temp");
          temp = new SpriteSheet(t, 50, 75, 0, 0).Sprites[0];
 
          background = Content.Load<Texture2D>("background");
+
+         details = Content.Load<SpriteFont>("Text");
 
          camera.Reset();
 
@@ -186,6 +196,9 @@ namespace PlatformerExample
 
          camera.Update(all, Keyboard.GetState());
 
+         king.HandleInput(Keyboard.GetState());
+         king.Update(gameTime);
+
          for (int i = 0; i < allies.Count; i++)
          {
             allies[i].Update(gameTime, startGame);
@@ -195,7 +208,26 @@ namespace PlatformerExample
             enemies[i].Update(gameTime, startGame);
          }
 
+         endGame = isWon();
+
          base.Update(gameTime);
+      }
+
+      private bool isWon()
+      {
+         bool allyDead = true;
+         foreach(IEntity e in allies)
+         {
+            if (e.Health > 0) allyDead = false;
+         }
+         bool enemyDead = true;
+         foreach (IEntity e in enemies)
+         {
+            if (e.Health > 0) enemyDead = false;
+         }
+
+         if ((allyDead == true && enemyDead == false) || (enemyDead == true && allyDead == false)) return true;
+         else return false;
       }
 
       /// <summary>
@@ -216,10 +248,28 @@ namespace PlatformerExample
             IEntity.Draw(spriteBatch);
          });
 
+         king.Draw(spriteBatch);
+
          allies.ForEach(IEntity =>
          {
             IEntity.Draw(spriteBatch);
          });
+
+         if (startGame == false) spriteBatch.DrawString(details, "Press 'R' to begin Game.", new Vector2(graphics.GraphicsDevice.Viewport.Width / 2 - 125, graphics.GraphicsDevice.Viewport.Height / 2 - 40), Color.ForestGreen);
+         else
+         {
+            if (endGame == true)
+            {
+               bool winner = false;
+               foreach (IEntity e in enemies)
+               {
+                  if (e.Health > 0) winner = true;
+               }
+               if (winner) spriteBatch.DrawString(details, "Enemies Win!", new Vector2(graphics.GraphicsDevice.Viewport.Width / 2 - 55, graphics.GraphicsDevice.Viewport.Height / 2 - 40), Color.ForestGreen);
+               else spriteBatch.DrawString(details, "Allies Win!", new Vector2(graphics.GraphicsDevice.Viewport.Width / 2 - 50, graphics.GraphicsDevice.Viewport.Height / 2 - 40), Color.ForestGreen);
+            }
+         }
+
 
          spriteBatch.End();
 

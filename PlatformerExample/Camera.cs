@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+// Code inspired from/Used from the page: https://roguesharp.wordpress.com/2014/07/13/tutorial-5-creating-a-2d-camera-with-pan-and-zoom-in-monogame/
 namespace PlatformerExample
 {
    public class Camera
@@ -176,7 +177,7 @@ namespace PlatformerExample
 
       public void Reset()
       {
-         CenterOn(new Vector2(ViewportWidth / 2, ViewportHeight / 2));
+         CenterOn(ViewportCenter);
          Zoom = 1f;
       }
 
@@ -191,9 +192,7 @@ namespace PlatformerExample
             HandleInput(focus);
             CenterOn(new Vector2((focus.Bounds.X + focus.Bounds.Width / 2), (focus.Bounds.Y + focus.Bounds.Height / 2)));
             return;
-         }
-
-         if (keys[0] == Keys.R) return;
+         } 
 
          if (keys[0] == Keys.OemMinus)
          {
