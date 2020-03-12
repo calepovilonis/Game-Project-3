@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using PlatformLibrary;
 using System.Linq;
 
 namespace PlatformerExample
@@ -33,6 +34,7 @@ namespace PlatformerExample
       private SpriteFont details;
       Camera camera = new Camera();
       King king;
+      SpawnLocations spawns;
 
       public Game1()
       {
@@ -53,17 +55,17 @@ namespace PlatformerExample
             switch (val)
             {
                case 1:
-                  var knight = new Knight(knight_sheet.Sprites, i * 200, 100 + (int)(random.NextDouble() * 50), grid);
+                  var knight = new Knight(knight_sheet.Sprites, (int)spawns.spawns[i-1].X, (int)spawns.spawns[i-1].Y, grid);
                   grid.Add(knight);
                   enemies.Add(knight);
                   break;
                case 2:
-                  var mage = new Mage(mage_sheet.Sprites, i * 200, 100 + (int)(random.NextDouble() * 50), grid);
+                  var mage = new Mage(mage_sheet.Sprites, (int)spawns.spawns[i - 1].X, (int)spawns.spawns[i - 1].Y, grid);
                   grid.Add(mage);
                   enemies.Add(mage);
                   break;
                case 3:
-                  var sword = new Swordsman(swordsman_sheet.Sprites, i * 200, 100 + (int)(random.NextDouble() * 50), grid);
+                  var sword = new Swordsman(swordsman_sheet.Sprites, (int)spawns.spawns[i - 1].X, (int)spawns.spawns[i - 1].Y, grid);
                   grid.Add(sword);
                   enemies.Add(sword);
                   break;
@@ -153,6 +155,8 @@ namespace PlatformerExample
 
          details = Content.Load<SpriteFont>("Text");
 
+         spawns = Content.Load<SpawnLocations>("spawns");
+
          camera.Reset();
 
          GenerateEnemies();
@@ -216,7 +220,7 @@ namespace PlatformerExample
       private bool isWon()
       {
          bool allyDead = true;
-         foreach(IEntity e in allies)
+         foreach (IEntity e in allies)
          {
             if (e.Health > 0) allyDead = false;
          }

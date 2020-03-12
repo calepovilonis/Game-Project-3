@@ -10,6 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\..\PlatformLibraryExtension\bin\Debug\PlatformLibraryExtension.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -72,6 +73,11 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:pixel.png
+
+#begin spawns.spwn
+/importer:SpawnImporter
+/processor:SpawnProcessor
+/build:spawns.spwn
 
 #begin spritesheet.png
 /importer:TextureImporter

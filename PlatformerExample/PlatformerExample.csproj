@@ -132,6 +132,12 @@
     </None>
     <None Include="app.manifest" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PlatformLibrary\PlatformLibrary.csproj">
+      <Project>{ea3fa83b-1017-49ad-b7b3-3bd9ea0c5685}</Project>
+      <Name>PlatformLibrary</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
