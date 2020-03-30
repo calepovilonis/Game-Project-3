@@ -54,11 +54,14 @@
   <ItemGroup>
     <Compile Include="BoundingRectangle.cs" />
     <Compile Include="Camera.cs" />
+    <Compile Include="Fire.cs" />
     <Compile Include="Grid.cs" />
     <Compile Include="King.cs" />
     <Compile Include="KingIdle.cs" />
     <Compile Include="KingState.cs" />
     <Compile Include="KingWalking.cs" />
+    <Compile Include="Particle.cs" />
+    <Compile Include="ParticleSystem.cs" />
     <Compile Include="TempUnit.cs" />
     <Compile Include="Game1.cs" />
     <Compile Include="IBoundable.cs" />

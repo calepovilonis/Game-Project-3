@@ -35,6 +35,12 @@ namespace PlatformerExample
       Camera camera = new Camera();
       King king;
       SpawnLocations spawns;
+      ParticleSystem particleSystem;
+      Texture2D particleTex;
+      List<ParticleSystem> SpellHitSystem;
+      Texture2D spellTex;
+      Texture2D fireTex;
+      List<Fire> fires;
 
       public Game1()
       {
@@ -45,6 +51,8 @@ namespace PlatformerExample
          enemies = new List<IEntity>();
          all = new List<IEntity>();
          grid = new Grid(1042, 1);
+         SpellHitSystem = new List<ParticleSystem>();
+         fires = new List<Fire>();
       }
 
       public void GenerateEnemies()
@@ -55,12 +63,14 @@ namespace PlatformerExample
             switch (val)
             {
                case 1:
-                  var knight = new Knight(knight_sheet.Sprites, (int)spawns.spawns[i-1].X, (int)spawns.spawns[i-1].Y, grid);
+                  var knight = new Knight(knight_sheet.Sprites, (int)spawns.spawns[i - 1].X, (int)spawns.spawns[i - 1].Y, grid);
                   grid.Add(knight);
                   enemies.Add(knight);
                   break;
                case 2:
-                  var mage = new Mage(mage_sheet.Sprites, (int)spawns.spawns[i - 1].X, (int)spawns.spawns[i - 1].Y, grid);
+                  var sys = new ParticleSystem(this.GraphicsDevice, 10000, spellTex, this, camera);
+                  SpellHitSystem.Add(sys);
+                  var mage = new Mage(mage_sheet.Sprites, (int)spawns.spawns[i - 1].X, (int)spawns.spawns[i - 1].Y, grid, sys);
                   grid.Add(mage);
                   enemies.Add(mage);
                   break;
@@ -85,7 +95,9 @@ namespace PlatformerExample
                   allies.Add(knight);
                   break;
                case 2:
-                  var mage = new Mage(mage_sheet.Sprites, i * 200, 450, grid);
+                  var sys = new ParticleSystem(this.GraphicsDevice, 10000, spellTex, this, camera);
+                  SpellHitSystem.Add(sys);
+                  var mage = new Mage(mage_sheet.Sprites, i * 200, 450, grid, sys);
                   grid.Add(mage);
                   allies.Add(mage);
                   break;
@@ -159,6 +171,8 @@ namespace PlatformerExample
 
          camera.Reset();
 
+         spellTex = Content.Load<Texture2D>("Particle");
+
          GenerateEnemies();
          foreach (IEntity e in enemies)
          {
@@ -171,6 +185,50 @@ namespace PlatformerExample
             e.Ally = allies;
             all.Add(e);
          }
+
+
+
+         //particle system init
+         particleTex = Content.Load<Texture2D>("fog");
+         particleSystem = new ParticleSystem(GraphicsDevice, 15, particleTex, this, camera);
+         particleSystem.SpawnPerFrame = 1;
+         particleSystem.SpawnParticle = (ref Particle particle) =>
+         {
+            particle.Position = new Vector2(random.Next(-500, 500), random.Next(-5000, 500));
+            particle.Velocity = new Vector2(
+                MathHelper.Lerp(-100, 100, (float)random.NextDouble()), // X between -50 and 50
+                MathHelper.Lerp(-10, 10, (float)random.NextDouble()) // Y between 0 and 100
+                );
+            particle.Acceleration = 0.1f * new Vector2(0, (float)-random.NextDouble());
+            particle.Color = Color.White * 2f;
+            particle.Scale = 1f;
+            particle.Life = 1000000000f;
+         };
+
+         // Set the UpdateParticle method
+         particleSystem.UpdateParticle = (float deltaT, ref Particle particle) =>
+         {
+            particle.Velocity += deltaT * particle.Acceleration;
+            particle.Position += deltaT * particle.Velocity;
+            particle.Color = particle.Color * .97f;
+            //particle.Scale -= deltaT * .1f;
+            //particle.Life -= deltaT;
+         };
+
+         fireTex = Content.Load<Texture2D>("fire");
+         for (int i = 0; i < 5; i++)
+         {
+            var newSys = new ParticleSystem(this.GraphicsDevice, 1000, fireTex, this, camera);
+            newSys.SpawnPerFrame = 1;
+
+            var fire = new Fire(new Vector2(50 + random.Next(0,950), 100 + random.Next(0, 550)), newSys);
+
+            fires.Add(fire);
+            Components.Add(newSys);
+         }
+
+
+         Components.Add(particleSystem);
 
       }
 
@@ -212,10 +270,13 @@ namespace PlatformerExample
             enemies[i].Update(gameTime, startGame);
          }
 
+         foreach (Fire f in fires) f.Update(gameTime);
+
          endGame = isWon();
 
          base.Update(gameTime);
       }
+
 
       private bool isWon()
       {
@@ -274,9 +335,9 @@ namespace PlatformerExample
             }
          }
 
-
          spriteBatch.End();
-
+         foreach (Fire f in fires) f.system.Draw(gameTime);
+         foreach (ParticleSystem p in SpellHitSystem) p.Draw(gameTime);
          base.Draw(gameTime);
       }
    }

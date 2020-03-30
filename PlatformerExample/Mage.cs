@@ -56,10 +56,14 @@ namespace PlatformerExample
       // The origin of the sprite (centered on its feet)
       Vector2 origin = new Vector2(-100, -55);
 
+      ParticleSystem system;
+
       /// <summary>
       /// Gets and sets the position of the player on-screen
       /// </summary>
       public Vector2 Position;
+
+      Random random = new Random();
 
       public BoundingRectangle Bounds => new BoundingRectangle(Position - 1.8f * origin, 60, 100);
 
@@ -67,13 +71,47 @@ namespace PlatformerExample
       /// Constructs a new player
       /// </summary>
       /// <param name="frames">The sprite frames associated with the player</param>
-      public Mage(IEnumerable<Sprite> frames, int x, int y, Grid g)
+      public Mage(IEnumerable<Sprite> frames, int x, int y, Grid g, ParticleSystem particles)
       {
          this.frames = frames.ToArray();
          animationState = AnimState.Idle;
          Position = new Vector2(x - 100, y);
          grid = g;
          health = 50;
+
+         system = particles;
+         system.SpawnPerFrame = 150;
+
+         system.SpawnParticle = (ref Particle particle) =>
+         {
+            if (AnimState.Attacking != animationState || focus == null)
+            {
+               particle.Life = 0.0f;
+               particle.Position = new Vector2(0, 0);
+            }
+            else
+            {
+               var focPos = focus.Bounds;
+               particle.Position = new Vector2(focPos.X+25, focPos.Y+50);
+               particle.Life = 3.0f;
+            }
+            particle.Velocity = new Vector2(
+               MathHelper.Lerp(-50* (float)random.NextDouble(), 50 * (float)random.NextDouble(), (float)random.NextDouble()), // X between -50 and 50
+               MathHelper.Lerp(-100*(float)random.NextDouble(), 30 * (float)random.NextDouble(), (float)random.NextDouble()) // Y between 0 and 100
+               );
+            particle.Acceleration = 1.35f * new Vector2(0, (float)-random.NextDouble());
+            particle.Color = Color.MediumPurple * .4f;
+            particle.Scale = 1f;
+         };
+
+
+         system.UpdateParticle = (float deltaT, ref Particle particle) =>
+         {
+            particle.Velocity += deltaT * particle.Acceleration;
+            particle.Position += deltaT * particle.Velocity;
+            particle.Scale -= deltaT;
+            particle.Life -= deltaT;
+         };
       }
 
       /// <summary>
@@ -88,6 +126,8 @@ namespace PlatformerExample
             Debug.WriteLine($"Focus: {focus}");
 
             Debug.WriteLine($"Health: {health}");
+
+            system.Update(gameTime);
 
             if (focus == null && health > 0) animationState = AnimState.Idle;
 
